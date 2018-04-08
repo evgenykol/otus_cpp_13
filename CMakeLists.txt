@@ -5,7 +5,7 @@ if(NOT DEFINED ENV{TRAVIS_BUILD_NUMBER})
     set(ENV{TRAVIS_BUILD_NUMBER} "1")
 endif()
 
-project(bulk_server VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
+project(join_server VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 
 # libboost-system-dev libboost-doc
 find_package(Boost COMPONENTS system REQUIRED)
@@ -16,9 +16,9 @@ configure_file(version.h.in version.h)
 add_library(parser_lib parser.h parser.cpp)
 add_library(table_lib table.h table.cpp)
 
-add_executable(bulk_server main.cpp)
+add_executable(join_server main.cpp)
 
-set_target_properties(bulk_server parser_lib table_lib
+set_target_properties(join_server parser_lib table_lib
         PROPERTIES
                 CXX_STANDARD 14
                 CXX_STANDARD_REQUIRED ON
@@ -27,12 +27,12 @@ set_target_properties(bulk_server parser_lib table_lib
                 COMPILE_OPTIONS -Wpedantic -Wall -Wextra
 )
 
-target_link_libraries(bulk_server parser_lib table_lib
+target_link_libraries(join_server parser_lib table_lib
     ${Boost_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-install(TARGETS bulk_server RUNTIME DESTINATION bin)
+install(TARGETS join_server RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 

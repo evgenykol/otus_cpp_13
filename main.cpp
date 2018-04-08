@@ -1,13 +1,14 @@
 #include <iostream>
-#include <map>
+#include <set>
 #include <thread>
+
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
 #include "string.h"
 #include "version.h"
-//#include "bulk.h"
+#include "parser.h"
 
 using namespace std;
 using boost::asio::ip::tcp;
@@ -24,35 +25,26 @@ class join_room
 {
 public:
 
-//    void join(bulk_participant_ptr participant)
-//    {
-//        participants_.emplace(std::make_pair(participant, bulk::BulkSessionProcessor()));
-//    }
+    void join(join_participant_ptr participant)
+    {
+        participants_.emplace(participant);
+    }
 
-//    void leave(bulk_participant_ptr participant)
-//    {
-//        participants_.erase(participant);
-//        if (participants_.empty())
-//        {
-//            if(commands.cmds.metrics.commands > 0)
-//            {
-//                unique_lock<mutex> lk(m);
-//                bulk_.dump_block(commands);
-//            }
-//        }
-//    }
+    void leave(join_participant_ptr participant)
+    {
+        participants_.erase(participant);
+    }
 
-//    void deliver(const bulk_participant_ptr participant, std::string& msg)
-//    {
-//        unique_lock<mutex> lk(m);
-//        bulk_.add_line(msg, participants_[participant], commands);
-//    }
+    void deliver(std::string& msg)
+    {
+        //unique_lock<mutex> lk(m);
+        parser_.parse_input(msg);
+    }
 
-//private:
-//    std::map<bulk_participant_ptr, bulk::BulkSessionProcessor> participants_;
-//    bulk::BulkSessionProcessor commands;
-//    bulk::BulkContext bulk_;
-//    std::mutex m;
+private:
+    std::set<join_participant_ptr> participants_;
+    parser parser_;
+    //std::mutex m;
 };
 
 class join_session
@@ -68,7 +60,7 @@ public:
 
     void start()
     {
-        //room_.join(shared_from_this());
+        room_.join(shared_from_this());
         do_read_message();
     }
 
@@ -90,13 +82,13 @@ public:
             {
                 std::string s = string{str};
                 s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
-                //room_.deliver(self, s);
+                room_.deliver(s);
 
                 do_read_message();
             }
             else
             {
-                //room_.leave(shared_from_this());
+                room_.leave(shared_from_this());
             }
         });
     }
@@ -156,7 +148,7 @@ int main(int argc, char* argv[])
         else if (argc == 2)
         {
             port = atoi(argv[1]);
-            //cout << "join_server starting on port: " << port << endl;
+            cout << "join_server starting on port: " << port << endl;
         }
         else
         {

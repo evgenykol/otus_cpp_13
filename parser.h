@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 
 using command = std::string;
@@ -9,7 +10,8 @@ class parser
 public:
     parser();
 
-    parse_input(command &cmd);
-    make_error_code();
-    register_table();
+    bool parse_input(command &cmd);
+    bool make_error_code();
+    bool register_table();
+private:
 };
