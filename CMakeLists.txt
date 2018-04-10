@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
 if(NOT DEFINED ENV{TRAVIS_BUILD_NUMBER})
-    message("TRAVIS_BUILD_NUMBER environment set to default")
+    message("TRAVIS_BUILD_NUMBER environment variable set to default")
     set(ENV{TRAVIS_BUILD_NUMBER} "1")
 endif()
 

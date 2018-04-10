@@ -11,3 +11,6 @@ INSERT B 5 lake
 INSERT B 6 flour
 INSERT B 7 wonder
 INSERT B 8 selection
+truncate bb
+truncate A
+TRUNCATE B
