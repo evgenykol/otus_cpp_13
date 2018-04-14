@@ -1,6 +1,7 @@
 #include "table.h"
 
 #include <memory>
+#include <algorithm>
 
 void table_processor::register_table(const std::string &table_name)
 {
@@ -44,11 +45,55 @@ table_processor::error_code table_processor::truncate(const std::string &table_n
         return TABLE_IS_EMPTY;
     }
 }
-table_type &table_processor::intersection()
+std::string  table_processor::intersection()
 {
-    //return nullptr;
+    std::string res;
+    for(auto p : tables["A"])
+    {
+        auto b = tables["B"].find(p.first);
+        if(b != tables["B"].end())
+        {
+             res += std::to_string(p.first) +"," + p.second +"," + b->second + "\n";
+        }
+    }
+    return res;
 }
-table_type &table_processor::symmetric_difference()
+
+std::string table_processor::symmetric_difference()
 {
-    //return nullptr;
+    std::string result;
+    std::vector<int> vecA;
+    std::vector<int> vecB;
+    std::vector<int> vecSD;
+
+    for(auto &key : tables["A"])
+    {
+        vecA.push_back(key.first);
+    }
+
+    for(auto &key : tables["B"])
+    {
+        vecB.push_back(key.first);
+    }
+
+    std::set_symmetric_difference(vecA.begin(), vecA.end(),
+                                  vecB.begin(), vecB.end(),
+                                  std::back_inserter(vecSD));
+
+    for(auto &key : vecSD)
+    {
+        auto kv = tables["A"].find(key);
+        if(kv != tables["A"].end())
+        {
+            result += std::to_string(kv->first) +"," + kv->second + "\n";
+        }
+        else
+        {
+            kv = tables["B"].find(key);
+            result += std::to_string(kv->first) +",," + kv->second + "\n";
+        }
+
+    }
+
+    return result;
 }

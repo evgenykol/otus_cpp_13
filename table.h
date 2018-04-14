@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <memory>
 
 using table_type = std::map<int, std::string>;
 using index_type = std::set<int>;
@@ -43,6 +44,6 @@ public:
 
     error_code insert(const std::string &table_name, int id, std::string &value);
     error_code truncate(const std::string &table_name);
-    table_type &intersection();
-    table_type &symmetric_difference();
+    std::string intersection();
+    std::string symmetric_difference();
 };

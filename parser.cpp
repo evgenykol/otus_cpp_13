@@ -68,12 +68,14 @@ std::string parser::parse_input(command &cmd)
         else if (command_match("INTERSECTION", 1))
         {
             std::cout << "INTERSECTION" << std::endl;
-            processor.intersection();
+            auto res = processor.intersection();
+            result = res + "OK\n";
         }
         else if (command_match("SYMMETRIC_DIFFERENCE", 1))
         {
             std::cout << "SYMMETRIC_DIFFERENCE" << std::endl;
-            processor.symmetric_difference();
+            auto res = processor.symmetric_difference();
+            result = res + "OK\n";
         }
         else
         {
