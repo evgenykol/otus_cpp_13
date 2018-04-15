@@ -18,6 +18,7 @@ table_processor::error_code table_processor::insert(const std::string &table_nam
     table_type &t = tables[table_name];
     if(t.find(id) == t.end())
     {
+        std::unique_lock<std::mutex> lk(m);
         t.insert(std::make_pair(id, value));
         return OK;
     }
@@ -45,18 +46,40 @@ table_processor::error_code table_processor::truncate(const std::string &table_n
         return TABLE_IS_EMPTY;
     }
 }
-std::string  table_processor::intersection()
+std::string table_processor::intersection()
 {
-    std::string res;
-    for(auto p : tables["A"])
+    std::string result;
+    std::vector<int> vecA;
+    std::vector<int> vecB;
+    std::vector<int> vecSD;
+
+    std::unique_lock<std::mutex> lk(m);
+
+    vecA.reserve(tables["A"].size());
+    for(auto &key : tables["A"])
     {
-        auto b = tables["B"].find(p.first);
-        if(b != tables["B"].end())
-        {
-             res += std::to_string(p.first) +"," + p.second +"," + b->second + "\n";
-        }
+        vecA.push_back(key.first);
     }
-    return res;
+
+    vecB.reserve(tables["B"].size());
+    for(auto &key : tables["B"])
+    {
+        vecB.push_back(key.first);
+    }
+    lk.unlock();
+
+    std::set_intersection(vecA.begin(), vecA.end(),
+                                  vecB.begin(), vecB.end(),
+                                  std::back_inserter(vecSD));
+
+    for(auto &key : vecSD)
+    {
+        auto a = tables["A"].find(key);
+        auto b = tables["B"].find(key);
+        result += std::to_string(key) + "," + tables["A"].find(key)->second + "," + tables["B"].find(key)->second + "\n";
+    }
+
+    return result;
 }
 
 std::string table_processor::symmetric_difference()
@@ -66,15 +89,19 @@ std::string table_processor::symmetric_difference()
     std::vector<int> vecB;
     std::vector<int> vecSD;
 
+    std::unique_lock<std::mutex> lk(m);
+    vecA.reserve(tables["A"].size());
     for(auto &key : tables["A"])
     {
         vecA.push_back(key.first);
     }
 
+    vecB.reserve(tables["B"].size());
     for(auto &key : tables["B"])
     {
         vecB.push_back(key.first);
     }
+    lk.unlock();
 
     std::set_symmetric_difference(vecA.begin(), vecA.end(),
                                   vecB.begin(), vecB.end(),

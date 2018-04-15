@@ -55,37 +55,37 @@ std::string parser::parse_input(command &cmd)
     {
         if(command_match("INSERT", 4))
         {
-            std::cout << "INSERT " << tokens[1] << " " << tokens[2] << " "<< tokens[3] << std::endl;
+            //std::cout << "INSERT " << tokens[1] << " " << tokens[2] << " "<< tokens[3] << std::endl;
             auto ec = processor.insert(tokens[1], std::stoi(tokens[2]), tokens[3]);
             result = ec_to_str(ec, tokens[2]);
         }
         else if (command_match("TRUNCATE", 2))
         {
-            std::cout << "TRUNCATE " << tokens[1] << std::endl;
+            //std::cout << "TRUNCATE " << tokens[1] << std::endl;
             auto ec = processor.truncate(tokens[1]);
             result = ec_to_str(ec, tokens[1]);
         }
         else if (command_match("INTERSECTION", 1))
         {
-            std::cout << "INTERSECTION" << std::endl;
+            //std::cout << "INTERSECTION" << std::endl;
             auto res = processor.intersection();
             result = res + "OK\n";
         }
         else if (command_match("SYMMETRIC_DIFFERENCE", 1))
         {
-            std::cout << "SYMMETRIC_DIFFERENCE" << std::endl;
+            //std::cout << "SYMMETRIC_DIFFERENCE" << std::endl;
             auto res = processor.symmetric_difference();
             result = res + "OK\n";
         }
         else
         {
-            std::cout << "unknown command" << std::endl;
+            //std::cout << "unknown command" << std::endl;
             result = "ERR unknown command\n";
         }
     }
     else
     {
-        std::cout << "parse_input error" << std::endl;
+        //std::cout << "parse_input error" << std::endl;
         result = "ERR bad command format\n";
     }
     return result;

@@ -39,7 +39,7 @@ public:
 
     void deliver(const join_participant_ptr participant, std::string& msg)
     {
-        //unique_lock<mutex> lk(m);
+        //std::cout << std::this_thread::get_id() << " : ";
         std::string result = parser_.parse_input(msg);
         participant->deliver(result);
     }
@@ -47,7 +47,6 @@ public:
 private:
     std::set<join_participant_ptr> participants_;
     parser parser_;
-    //std::mutex m;
 };
 
 class join_session
@@ -185,7 +184,7 @@ int main(int argc, char* argv[])
         else if (argc == 2)
         {
             port = atoi(argv[1]);
-            cout << "join_server starting on port: " << port << endl;
+            //cout << "join_server starting on port: " << port << endl;
         }
         else
         {
