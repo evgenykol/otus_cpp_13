@@ -49,34 +49,18 @@ table_processor::error_code table_processor::truncate(const std::string &table_n
 std::string table_processor::intersection()
 {
     std::string result;
-    std::vector<int> vecA;
-    std::vector<int> vecB;
-    std::vector<int> vecSD;
+    auto &table_a = tables["A"];
+    auto &table_b = tables["B"];
 
     std::unique_lock<std::mutex> lk(m);
 
-    vecA.reserve(tables["A"].size());
-    for(auto &key : tables["A"])
+    for(auto p : table_a) //nA * log(nA)
     {
-        vecA.push_back(key.first);
-    }
-
-    vecB.reserve(tables["B"].size());
-    for(auto &key : tables["B"])
-    {
-        vecB.push_back(key.first);
-    }
-    lk.unlock();
-
-    std::set_intersection(vecA.begin(), vecA.end(),
-                                  vecB.begin(), vecB.end(),
-                                  std::back_inserter(vecSD));
-
-    for(auto &key : vecSD)
-    {
-        auto a = tables["A"].find(key);
-        auto b = tables["B"].find(key);
-        result += std::to_string(key) + "," + tables["A"].find(key)->second + "," + tables["B"].find(key)->second + "\n";
+        auto b = table_b.find(p.first); //log(nB)
+        if(b != table_b.end())
+        {
+             result += std::to_string(p.first) +"," + p.second +"," + b->second + "\n";
+        }
     }
 
     return result;
@@ -85,41 +69,25 @@ std::string table_processor::intersection()
 std::string table_processor::symmetric_difference()
 {
     std::string result;
-    std::vector<int> vecA;
-    std::vector<int> vecB;
-    std::vector<int> vecSD;
+    auto &table_a = tables["A"];
+    auto &table_b = tables["B"];
 
     std::unique_lock<std::mutex> lk(m);
-    vecA.reserve(tables["A"].size());
-    for(auto &key : tables["A"])
+
+    for(auto p : table_a) //nA * log(nA)
     {
-        vecA.push_back(key.first);
+        if(table_b.find(p.first) == table_b.end()) //log(nB)
+        {
+             result += std::to_string(p.first) +"," + p.second + "\n";
+        }
     }
 
-    vecB.reserve(tables["B"].size());
-    for(auto &key : tables["B"])
+    for(auto p : table_b) //nB * log(nB)
     {
-        vecB.push_back(key.first);
-    }
-    lk.unlock();
-
-    std::set_symmetric_difference(vecA.begin(), vecA.end(),
-                                  vecB.begin(), vecB.end(),
-                                  std::back_inserter(vecSD));
-
-    for(auto &key : vecSD)
-    {
-        auto kv = tables["A"].find(key);
-        if(kv != tables["A"].end())
+        if(table_a.find(p.first) == table_a.end()) //log(nA)
         {
-            result += std::to_string(kv->first) +"," + kv->second + "\n";
+             result += std::to_string(p.first) +",," + p.second + "\n";
         }
-        else
-        {
-            kv = tables["B"].find(key);
-            result += std::to_string(kv->first) +",," + kv->second + "\n";
-        }
-
     }
 
     return result;
