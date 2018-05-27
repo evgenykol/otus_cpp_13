@@ -46,20 +46,32 @@ table_processor::error_code table_processor::truncate(const std::string &table_n
         return TABLE_IS_EMPTY;
     }
 }
+
 std::string table_processor::intersection()
 {
     std::string result;
-    auto &table_a = tables["A"];
-    auto &table_b = tables["B"];
+
+    auto first1 = tables["A"].begin();
+    auto last1 = tables["A"].end();
+    auto first2 = tables["B"].begin();
+    auto last2 = tables["B"].end();
+
 
     std::unique_lock<std::mutex> lk(m);
-
-    for(auto p : table_a) //nA * log(nA)
+    while (first1 != last1 && first2 != last2)
     {
-        auto b = table_b.find(p.first); //log(nB)
-        if(b != table_b.end())
+        if (first1->first < first2->first)
         {
-             result += std::to_string(p.first) +"," + p.second +"," + b->second + "\n";
+            ++first1;
+        }
+        else
+        {
+            if (!(first2->first < first1->first))
+            {
+                result += std::to_string(first1->first) +"," + first1->second +"," + first2->second + "\n";
+                ++first1;
+            }
+            ++first2;
         }
     }
 
@@ -69,25 +81,47 @@ std::string table_processor::intersection()
 std::string table_processor::symmetric_difference()
 {
     std::string result;
-    auto &table_a = tables["A"];
-    auto &table_b = tables["B"];
 
+    auto first1 = tables["A"].begin();
+    auto last1 = tables["A"].end();
+    auto first2 = tables["B"].begin();
+    auto last2 = tables["B"].end();
     std::unique_lock<std::mutex> lk(m);
 
-    for(auto p : table_a) //nA * log(nA)
+    while (first1 != last1)
     {
-        if(table_b.find(p.first) == table_b.end()) //log(nB)
+        if (first2 == last2)
         {
-             result += std::to_string(p.first) +"," + p.second + "\n";
+            while(first1 != last1)
+            {
+                result += std::to_string(first1->first) +"," + first1->second + "\n";
+                ++first1;
+            }
+        }
+
+        if (first1->first < first2->first)
+        {
+            result += std::to_string(first1->first) +"," + first1->second + "\n";
+            ++first1;
+        }
+        else
+        {
+            if (first2->first < first1->first)
+            {
+                result += std::to_string(first2->first) +",," + first2->second + "\n";
+            }
+            else
+            {
+                ++first1;
+            }
+            ++first2;
         }
     }
 
-    for(auto p : table_b) //nB * log(nB)
+    while(first2 != last2)
     {
-        if(table_a.find(p.first) == table_a.end()) //log(nA)
-        {
-             result += std::to_string(p.first) +",," + p.second + "\n";
-        }
+        result += std::to_string(first2->first) +",," + first2->second + "\n";
+        ++first2;
     }
 
     return result;

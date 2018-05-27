@@ -68,12 +68,12 @@ public:
 
     void deliver(const std::string& msg)
     {
-      bool write_in_progress = !write_msgs_.empty();
-      write_msgs_.push_back(msg);
-      if (!write_in_progress)
-      {
-        do_write();
-      }
+        bool write_in_progress = !write_msgs_.empty();
+        write_msgs_.push_back(msg);
+        if (!write_in_progress)
+        {
+            do_write();
+        }
     }
 
 private:
@@ -101,6 +101,7 @@ private:
             }
             else
             {
+                cout << "do_read_message, room.leave  " << ec.message() << endl;
                 room_.leave(shared_from_this());
             }
         });
@@ -123,6 +124,7 @@ private:
             }
             else
             {
+                cout << "do_read_write, room.leave  " << ec.message() << endl;
                 room_.leave(shared_from_this());
             }
         });
