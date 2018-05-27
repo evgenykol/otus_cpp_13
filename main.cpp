@@ -101,7 +101,7 @@ private:
             }
             else
             {
-                cout << "do_read_message, room.leave  " << ec.message() << endl;
+                //cout << "do_read_message, room.leave  " << ec.message() << endl;
                 room_.leave(shared_from_this());
             }
         });
@@ -124,7 +124,7 @@ private:
             }
             else
             {
-                cout << "do_read_write, room.leave  " << ec.message() << endl;
+                //cout << "do_read_write, room.leave  " << ec.message() << endl;
                 room_.leave(shared_from_this());
             }
         });
